@@ -3,82 +3,89 @@ using UnityEngine.UI;
 
 public class TankShooting : MonoBehaviour
 {
-    public int m_PlayerNumber = 1;       
-    public Rigidbody m_Shell;            
-    public Transform m_FireTransform;    
-    public Slider m_AimSlider;           
-    public AudioSource m_ShootingAudio;  
-    public AudioClip m_ChargingClip;     
-    public AudioClip m_FireClip;         
-    public float m_MinLaunchForce = 15f; 
-    public float m_MaxLaunchForce = 30f; 
-    public float m_MaxChargeTime = 0.75f;
+    public int          m_PlayerNumber;       
 
+    public Rigidbody    m_Shell;            
+    public Transform    m_FireTransform;    
+    public AudioSource  m_ShootingAudio;   
+    public AudioClip    m_FireClip;
+
+    public Transform    m_target_transform;
+    public float        m_launch_force;
+    public float        m_min_pitch_angle;
+    public float        m_max_pitch_angle;
+    public float        m_shot_cooldown;
     
-    private string m_FireButton;         
-    private float m_CurrentLaunchForce;  
-    private float m_ChargeSpeed;         
-    private bool m_Fired;                
-
+    private string      m_FireButton;
+    private bool        m_Fired;
+    private float       m_current_cooldown          = 0.0f;
+    private bool        m_managed_by_AI             = false;
+    private bool        m_suitable_angle            = false;
+    
+    [HideInInspector] public MeshRenderer m_turret_renderer;
 
     private void OnEnable()
     {
-        m_CurrentLaunchForce = m_MinLaunchForce;
-        m_AimSlider.value = m_MinLaunchForce;
+        
     }
 
 
     private void Start()
     {
         m_FireButton = "Fire" + m_PlayerNumber;
-
-        m_ChargeSpeed = (m_MaxLaunchForce - m_MinLaunchForce) / m_MaxChargeTime;
     }
     
 
     private void Update()
     {
-        // Track the current state of the fire button and make decisions based on the current launch force.
-        m_AimSlider.value = m_MinLaunchForce;
+        LookAtEnemyTank();                                                                                                                  // Must be first to update the shot transform corr.
+        
+        if (m_Fired)
+        {
+            m_current_cooldown += Time.deltaTime;
 
-        if (m_CurrentLaunchForce >= m_MaxLaunchForce && !m_Fired)
-        {
-           m_CurrentLaunchForce = m_MaxLaunchForce;
-           Fire(); 
+            if (m_current_cooldown >= m_shot_cooldown)
+            {
+                m_Fired = false;
+                m_current_cooldown = 0.0f;
+            }
         }
-        else if (Input.GetButtonDown(m_FireButton))
-        {
-            m_Fired = false;
-            m_CurrentLaunchForce = m_MinLaunchForce;
 
-            m_ShootingAudio.clip = m_ChargingClip;
-            m_ShootingAudio.Play();
-        }
-        else if (Input.GetButton(m_FireButton) && !m_Fired)
+        if (m_managed_by_AI)
         {
-            m_CurrentLaunchForce += m_ChargeSpeed * Time.deltaTime;
-            
-            m_AimSlider.value = m_CurrentLaunchForce;
+            if (m_suitable_angle)                                                                                                           // Condition: Find a suitable angle.
+            {
+
+            }
         }
-        else if (Input.GetButtonUp(m_FireButton) && !m_Fired)
+        else
         {
-            Fire();
+            if (Input.GetButtonUp(m_FireButton) && !m_Fired)
+            {
+                Fire();
+            }
         }
     }
 
-
-    private void Fire()
+    private void Fire()                                                                                                                     // Instantiate and launch the shell.
     {
-        // Instantiate and launch the shell.
-        m_Fired = true;
+        m_Fired                     = true;
         
-        Rigidbody shellInstance = Instantiate(m_Shell, m_FireTransform.position, m_FireTransform.rotation) as Rigidbody;
+        //m_FireTransform.rotation    = Quaternion.Euler(0.0f, m_min_pitch_angle, 0.0f);
 
-        shellInstance.velocity = m_CurrentLaunchForce * m_FireTransform.forward;
+        Rigidbody shellInstance     = Instantiate(m_Shell, m_FireTransform.position, m_FireTransform.rotation) as Rigidbody;
+        shellInstance.velocity      = m_launch_force * m_FireTransform.forward;
 
-        m_ShootingAudio.clip = m_FireClip;
+        m_ShootingAudio.clip        = m_FireClip;
         m_ShootingAudio.Play();
+    }
 
-        m_CurrentLaunchForce = m_MinLaunchForce;
+    private void LookAtEnemyTank()
+    {
+        //m_turret_renderer.transform.rotation = m_target_transform;                                                                        // Use target_transform to create the LookAt().
+
+        m_min_pitch_angle += 1.0f; 
+
+        m_turret_renderer.transform.rotation = Quaternion.Euler(0.0f, m_min_pitch_angle, 0.0f);
     }
 }

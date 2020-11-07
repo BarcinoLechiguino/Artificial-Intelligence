@@ -36,11 +36,41 @@ public class GameManager : MonoBehaviour
 
     private void SpawnAllTanks()
     {
-        for (int i = 0; i < m_Tanks.Length; i++)
+        if (m_Tanks.Length % 2 != 0)                            // In case the number of tanks is not even.
         {
-            m_Tanks[i].m_Instance = Instantiate(m_TankPrefab, m_Tanks[i].m_SpawnPoint.position, m_Tanks[i].m_SpawnPoint.rotation) as GameObject;
-            m_Tanks[i].m_PlayerNumber = i + 1;
-            m_Tanks[i].Setup();
+            // --------------------------------------------------------------------------
+            // Spawn each tank individually.
+            // Should make it so the target changes based on which tank is closest to it.
+            // --------------------------------------------------------------------------
+
+            for (int i = 0; i < m_Tanks.Length; ++i)
+            {
+                m_Tanks[i].m_Instance = Instantiate(m_TankPrefab, m_Tanks[i].m_SpawnPoint.position, m_Tanks[i].m_SpawnPoint.rotation) as GameObject;
+                m_Tanks[i].m_PlayerNumber = i + 1;
+                m_Tanks[i].Setup();
+            }
+        }
+        else
+        {
+            // --------------------------------------------------------------------------
+            // Spawn tanks in pairs. Dirty fix to set an enemy target on each tank. 
+            // Should make it so the target changes based on which tank is closest to it.
+            // --------------------------------------------------------------------------
+
+            for (int i = 0; i < m_Tanks.Length; i += 2)
+            {
+                m_Tanks[i].m_Instance           = Instantiate(m_TankPrefab, m_Tanks[i].m_SpawnPoint.position, m_Tanks[i].m_SpawnPoint.rotation) as GameObject;
+                m_Tanks[i + 1].m_Instance       = Instantiate(m_TankPrefab, m_Tanks[i + 1].m_SpawnPoint.position, m_Tanks[i + 1].m_SpawnPoint.rotation) as GameObject;
+
+                m_Tanks[i].m_PlayerNumber       = i + 1;
+                m_Tanks[i + 1].m_PlayerNumber   = i + 2;
+
+                m_Tanks[i].m_target             = m_Tanks[i + 1].m_Instance;                // Adding the target of each tank to be the next/previous in the m_Tanks list.
+                m_Tanks[i + 1].m_target         = m_Tanks[i].m_Instance;                    // Targets will be set in pairs: T0->T1 & T0->T1, T2->T3 & T3->T2...
+
+                m_Tanks[i].Setup();
+                m_Tanks[i + 1].Setup();
+            }
         }
     }
 
@@ -146,7 +176,9 @@ public class GameManager : MonoBehaviour
                 {
                     m_Scoreboard.blue_lives--;
                 }
+                
                 m_Tanks[i].m_Wins++;
+                
                 return m_Tanks[i];
             }
         }

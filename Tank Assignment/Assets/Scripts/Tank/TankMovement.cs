@@ -6,22 +6,24 @@ using UnityEngine;
 
 public class TankMovement : MonoBehaviour
 {
-    public int m_PlayerNumber = 1;         
-    public float m_Speed = 12f;            
-    public float m_TurnSpeed = 180f;       
-    public AudioSource m_MovementAudio;    
-    public AudioClip m_EngineIdling;       
-    public AudioClip m_EngineDriving;      
-    public float m_PitchRange = 0.2f;
+    public int          m_PlayerNumber      = 1;         
+    public float        m_Speed             = 12f;            
+    public float        m_TurnSpeed         = 180f;       
+    public AudioSource  m_MovementAudio;    
+    public AudioClip    m_EngineIdling;       
+    public AudioClip    m_EngineDriving;      
+    public float        m_PitchRange        = 0.2f;
 
+    public Transform    m_target_transform;
 
-    private string m_MovementAxisName;     
-    private string m_TurnAxisName;         
-    private Rigidbody m_Rigidbody;         
-    private float m_MovementInputValue;    
-    private float m_TurnInputValue;        
-    private float m_OriginalPitch;         
+    private string      m_MovementAxisName;     
+    private string      m_TurnAxisName;         
+    private Rigidbody   m_Rigidbody;         
+    private float       m_MovementInputValue;    
+    private float       m_TurnInputValue;        
+    private float       m_OriginalPitch;
 
+    public bool         m_managed_by_AI;
 
     private void Awake()
     {
@@ -96,6 +98,9 @@ public class TankMovement : MonoBehaviour
 
     private void Move()
     {
+        // Wander or Patrolling
+
+        
         // Adjust the position of the tank based on the player's input.
         Vector3 movement = transform.forward * m_MovementInputValue * m_Speed * Time.deltaTime;
         
