@@ -4,41 +4,41 @@ using UnityEngine;
 [Serializable]
 public class TankManager
 {
-    public Color m_PlayerColor;            
-    public Transform m_SpawnPoint;         
-    [HideInInspector] public int m_PlayerNumber;             
-    [HideInInspector] public string m_ColoredPlayerText;
-    [HideInInspector] public GameObject m_Instance;          
-    [HideInInspector] public int m_Wins;
-    public int m_Loses;
+    public Color                            m_PlayerColor;            
+    public Transform                        m_SpawnPoint;         
+    [HideInInspector] public int            m_PlayerNumber;             
+    [HideInInspector] public string         m_ColoredPlayerText;
+    [HideInInspector] public GameObject     m_Instance;          
+    [HideInInspector] public int            m_Wins;
+    public int                              m_Loses;
 
-    private TankMovement m_Movement;       
-    private TankShooting m_Shooting;
-    private GameObject m_CanvasGameObject;
+    private TankMovement                    m_Movement;       
+    private TankShooting                    m_Shooting;
+    private GameObject                      m_CanvasGameObject;
 
-    [HideInInspector] public GameObject m_target;
-    [HideInInspector] public bool m_managed_by_AI;
+    [HideInInspector] public GameObject     m_target;
+    [HideInInspector] public bool           m_managed_by_AI;
 
     public void Setup()
     {
-        m_Movement                      = m_Instance.GetComponent<TankMovement>();
-        m_Shooting                      = m_Instance.GetComponent<TankShooting>();
-        m_CanvasGameObject              = m_Instance.GetComponentInChildren<Canvas>().gameObject;
+        m_Movement                          = m_Instance.GetComponent<TankMovement>();
+        m_Shooting                          = m_Instance.GetComponent<TankShooting>();
+        m_CanvasGameObject                  = m_Instance.GetComponentInChildren<Canvas>().gameObject;
 
-        m_ColoredPlayerText             = "<color=#" + ColorUtility.ToHtmlStringRGB(m_PlayerColor) + ">PLAYER " + m_PlayerNumber + "</color>";
-        MeshRenderer[] renderers        = m_Instance.GetComponentsInChildren<MeshRenderer>();
+        m_ColoredPlayerText                 = "<color=#" + ColorUtility.ToHtmlStringRGB(m_PlayerColor) + ">PLAYER " + m_PlayerNumber + "</color>";
+        MeshRenderer[] renderers            = m_Instance.GetComponentsInChildren<MeshRenderer>();
 
         for (int i = 0; i < renderers.Length; i++)
         {
             renderers[i].material.color = m_PlayerColor;
         }
 
-        m_Movement.m_PlayerNumber       = m_PlayerNumber;
-        m_Movement.m_target_transform   = m_target.transform;
+        m_Movement.m_PlayerNumber           = m_PlayerNumber;
+        m_Movement.m_target_transform       = m_target.transform;
 
-        m_Shooting.m_PlayerNumber       = m_PlayerNumber;
-        m_Shooting.m_target_transform   = m_target.transform;
-        m_Shooting.m_turret_renderer    = renderers[3];
+        m_Shooting.m_PlayerNumber           = m_PlayerNumber;
+        m_Shooting.m_target_transform       = m_target.transform;
+        m_Shooting.m_turret_renderer        = renderers[3];
     }
 
     public void DisableControl()
