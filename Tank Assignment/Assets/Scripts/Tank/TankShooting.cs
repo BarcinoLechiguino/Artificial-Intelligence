@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class TankShooting : MonoBehaviour
@@ -10,6 +11,7 @@ public class TankShooting : MonoBehaviour
     public AudioSource  m_ShootingAudio;   
     public AudioClip    m_FireClip;
 
+    public Transform    m_own_transform;
     public Transform    m_target_transform;
     public float        m_launch_force;
     public float        m_min_pitch_angle;
@@ -21,12 +23,18 @@ public class TankShooting : MonoBehaviour
     private float       m_current_cooldown          = 0.0f;
     private bool        m_managed_by_AI             = false;
     private bool        m_suitable_angle            = false;
+    private float       m_shot_angle                = 45.0f;
+    private float       m_max_shot_reach            = 0.0f;
     
     [HideInInspector] public MeshRenderer m_turret_renderer;
-
     private void OnEnable()
     {
-        
+        Vector3 velocity = m_launch_force * m_FireTransform.forward;
+
+        // As per R = v^2 * sin2(angle) / g
+        m_max_shot_reach = ((m_launch_force * m_launch_force) * Mathf.Sin(2.0f * 45.0f)) / Physics.gravity.y;                              // Max reach in a parabolic shot happens at 45º.
+
+        print(m_max_shot_reach);
     }
 
 
@@ -39,7 +47,9 @@ public class TankShooting : MonoBehaviour
     private void Update()
     {
         LookAtEnemyTank();                                                                                                                  // Must be first to update the shot transform corr.
-        
+
+        FindSuitableAngle();
+
         if (m_Fired)
         {
             m_current_cooldown += Time.deltaTime;
@@ -87,5 +97,25 @@ public class TankShooting : MonoBehaviour
         m_min_pitch_angle += 1.0f; 
 
         m_turret_renderer.transform.rotation = Quaternion.Euler(0.0f, m_min_pitch_angle, 0.0f);
+    }
+
+    private void FindSuitableAngle()
+    {
+        if (DistanceToTarget() < m_max_shot_reach)
+        {
+
+        }
+    }
+
+    private float DistanceToTarget()
+    {
+        Vector3 own_pos = m_own_transform.position;
+        Vector3 target_pos = m_target_transform.position;
+
+        Vector3 dist_vec = target_pos - own_pos;
+
+        float distance = Mathf.Sqrt(dist_vec.x * 2 + dist_vec.y * 2 + dist_vec.z * 2);
+
+        return distance;
     }
 }
