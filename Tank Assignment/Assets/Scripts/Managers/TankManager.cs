@@ -11,7 +11,8 @@ public class TankManager
     [HideInInspector] public GameObject     m_Instance;                                     // GameObject that represents the instanced tank.
     [HideInInspector] public int            m_Wins;                                         // Will keep track of the amount of rounds won by the tank instance.
 
-    public string                           m_AI_behaviour;                                 // Will def. the AI behaviour of the tank instance. Could be "Wander" or "Patroll".
+    public string                           m_AI_behaviour;                                 // Will def. the AI behaviour of the tank instance. Could be "Wander" or "Patrol".
+    [HideInInspector] public Transform[]    m_patrol_waypoints;                             // Array that will store the waypoints that will be used by a patrolling tank.
 
     private TankMovement                    m_Movement;                                     // Reference to the TankMovement component of the tank instance. See TankMovement.cs.
     private TankShooting                    m_Shooting;                                     // Reference to the TankShooting component of the tank instance. See TankShooting.cs.
@@ -37,6 +38,7 @@ public class TankManager
         m_Movement.m_PlayerNumber           = m_PlayerNumber;
         m_Movement.m_target_transform       = m_target.transform;
         m_Movement.m_AI_behaviour           = m_AI_behaviour;
+        m_Movement.waypoints                = m_patrol_waypoints;
 
         m_Shooting.m_PlayerNumber           = m_PlayerNumber;
         m_Shooting.m_target_transform       = m_target.transform;

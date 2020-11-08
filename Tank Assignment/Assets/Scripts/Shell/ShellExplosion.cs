@@ -31,7 +31,7 @@ public class ShellExplosion : MonoBehaviour
             }
             else
             {
-                targetRigidbody.AddExplosionForce(m_ExplosionForce, transform.position, m_ExplosionRadius);
+               // targetRigidbody.AddExplosionForce(m_ExplosionForce, transform.position, m_ExplosionRadius);
 
                 TankHealth targetHealth = colliders[i].GetComponent<TankHealth>();
                 
