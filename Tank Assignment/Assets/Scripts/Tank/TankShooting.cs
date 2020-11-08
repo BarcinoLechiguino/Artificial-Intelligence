@@ -146,10 +146,10 @@ public class TankShooting : MonoBehaviour
         }
         else
         {
-            Debug.Log(distance_to_target);
-            Debug.Log(m_max_shot_reach);
+            //Debug.Log(distance_to_target);
+            //Debug.Log(m_max_shot_reach);
 
-            Debug.LogWarning("[WARNING] Unable to shoot: The target is too far!");
+            //Debug.LogWarning("[WARNING] Unable to shoot: The target is too far!");
         }
     }
 

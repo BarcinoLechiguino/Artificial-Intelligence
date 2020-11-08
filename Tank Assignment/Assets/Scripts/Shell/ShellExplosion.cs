@@ -8,7 +8,7 @@ public class ShellExplosion : MonoBehaviour
     public float            m_MaxDamage             = 100f;                  
     public float            m_ExplosionForce        = 1000f;
     public float            m_ExplosionRadius       = 5.0f; 
-    public float            m_MaxLifeTime           = 8.0f;             
+    public float            m_MaxLifeTime           = 12.0f;             
 
     private void Start()
     {

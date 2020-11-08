@@ -36,6 +36,7 @@ public class TankManager
 
         m_Movement.m_PlayerNumber           = m_PlayerNumber;
         m_Movement.m_target_transform       = m_target.transform;
+        m_Movement.m_AI_behaviour           = m_AI_behaviour;
 
         m_Shooting.m_PlayerNumber           = m_PlayerNumber;
         m_Shooting.m_target_transform       = m_target.transform;

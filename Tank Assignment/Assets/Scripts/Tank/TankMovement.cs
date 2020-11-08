@@ -3,30 +3,41 @@ using System.Collections.Specialized;
 using System.Media;
 using System.Security.Cryptography;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class TankMovement : MonoBehaviour
 {
-    public int          m_PlayerNumber      = 1;                                                    // Number id attached to the tank instance with this TankMovement component.
-    public float        m_Speed             = 12f;                                                  // Speed at which the tank will move.
-    public float        m_TurnSpeed         = 180f;                                                 // Speed at which the tank will rotate on it's y axis.
-    public AudioSource  m_MovementAudio;                                                            // Ref. to the AudioSource component of the tank instance with this TankMovement component.
-    public AudioClip    m_EngineIdling;                                                             // Ref. to the AudioClip object that will store the audio clip for when the tank is idle.
-    public AudioClip    m_EngineDriving;                                                            // Ref. to the AudioClip object that will hold the audio clip for when the tank is driving.
-    public float        m_PitchRange        = 0.2f;                                                 // Defines the maximum variation in pitch from the original pitch. Randomized.
+    public int              m_PlayerNumber      = 1;                                                // Number id attached to the tank instance with this TankMovement component.
+    public float            m_Speed             = 12f;                                              // Speed at which the tank will move.
+    public float            m_TurnSpeed         = 180f;                                             // Speed at which the tank will rotate on it's y axis.
+    public AudioSource      m_MovementAudio;                                                        // Ref. to the AudioSource component of the tank instance with this TankMovement component.
+    public AudioClip        m_EngineIdling;                                                         // Ref. to the AudioClip object that will store the audio clip for when the tank is idle.
+    public AudioClip        m_EngineDriving;                                                        // Ref. to the AudioClip object that will hold the audio clip for when the tank is driving.
+    public float            m_PitchRange        = 0.2f;                                             // Defines the maximum variation in pitch from the original pitch. Randomized.
 
-    public bool         m_managed_by_AI;                                                            // Will keep track of whether or not the tank instance with this comp. is managed by the AI.
-    public Transform    m_target_transform;                                                         // Ref. to the transform of the tank instance set as the target of the one with this comp.
+    public Transform        m_target_transform;                                                     // Ref. to the transform of the tank instance set as the target of the one with this comp.
+    public string           m_AI_behaviour;                                                         // Will define the AI behaviour of the tank instance with this comp. "Wander" or "Patroll".
 
-    private string      m_MovementAxisName;                                                         // String with which get the correct Movement input for the tank instance with this comp.
-    private string      m_TurnAxisName;                                                             // String with which get the correct Turn input for the tank instance with this component.
-    private Rigidbody   m_Rigidbody;                                                                // Reference to the rigid body of the tank instance with this TankMovement component.
-    private float       m_MovementInputValue;                                                       // Movement Input value for the tank instance with this TankMovement component.
-    private float       m_TurnInputValue;                                                           // Turn Input value for the tank instance with this tank movement component.
-    private float       m_OriginalPitch;                                                            // Base pitch value for the Idling and Driving audio clips.
+    private string          m_MovementAxisName;                                                     // String with which get the correct Movement input for the tank instance with this comp.
+    private string          m_TurnAxisName;                                                         // String with which get the correct Turn input for the tank instance with this component.
+    private Rigidbody       m_Rigidbody;                                                            // Reference to the rigid body of the tank instance with this TankMovement component.
+    private float           m_MovementInputValue;                                                   // Movement Input value for the tank instance with this TankMovement component.
+    private float           m_TurnInputValue;                                                       // Turn Input value for the tank instance with this tank movement component.
+    private float           m_OriginalPitch;                                                        // Base pitch value for the Idling and Driving audio clips.
 
+    private bool            m_managed_by_AI = true;                                                 // Will keep track of whether or not the tank instance with this comp. is managed by the AI.
+    private NavMeshAgent    agent;                                                                  // NavMeshAgent that will be used if the tank instance with this comp. is a patroller.
+
+
+    delegate void AI_Move();
+    AI_Move AI_Movement;
+    
+    
     private void Awake()
     {
         m_Rigidbody = GetComponent<Rigidbody>();
+
+        //agent.path = new NavMeshPath();
     }
 
 
@@ -49,7 +60,26 @@ public class TankMovement : MonoBehaviour
         m_MovementAxisName = "Vertical" + m_PlayerNumber;
         m_TurnAxisName = "Horizontal" + m_PlayerNumber;
 
+        if (m_AI_behaviour == "Wander")
+        {
+            AI_Movement = Wander;
 
+            string log = "Tank " + m_PlayerNumber + " is a Wanderer";
+            Debug.Log(log);
+        }
+        else if (m_AI_behaviour == "Patroll")
+        {
+            AI_Movement = Patroll;
+
+            string log = "Tank " + m_PlayerNumber + " is a Patroller";
+            Debug.Log(log);
+        }
+        else
+        {
+            string log = "Could not ascertain the AI Behaviour for Tank " + m_PlayerNumber;
+
+            Debug.LogError(log);
+        }
 
         m_OriginalPitch = m_MovementAudio.pitch;
     }
@@ -68,6 +98,11 @@ public class TankMovement : MonoBehaviour
         // Move and turn the tank.
         Move();
         Turn();
+
+        if (m_managed_by_AI)
+        {
+            AI_Movement();
+        }
     }
 
     private void EngineAudio()
@@ -103,6 +138,15 @@ public class TankMovement : MonoBehaviour
         m_Rigidbody.MovePosition(m_Rigidbody.position + movement);
     }
 
+    private void Wander()
+    {
+        
+    }
+
+    private void Patroll()
+    {
+        
+    }
 
     private void Turn()
     {
