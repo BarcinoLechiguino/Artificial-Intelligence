@@ -5,21 +5,21 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public int m_NumRoundsToWin = 5;
-    public float m_StartDelay = 3f;
-    public float m_EndDelay = 3f;
-    public CameraControl m_CameraControl;
-    public Text m_MessageText;
-    public Scoreboard m_Scoreboard;
-    public GameObject m_TankPrefab;
-    public TankManager[] m_Tanks;
+    public int m_NumRoundsToWin             = 5;                    // Will set the amount of round wins needed to win the game.
+    public float m_StartDelay               = 3f;                   // Will define the amount of delay before starting any given round. In seconds.
+    public float m_EndDelay                 = 3f;                   // Will define the amount of delay before finishing any given round. In seconds.
+    public CameraControl m_CameraControl;                           // Reference to the CameraControl class. Will be used to control the camera when the round starts, ends... 
+    public Text m_MessageText;                                      // String that will be used to display the round the players are in as well as who has won and how many wins each has.
+    public Scoreboard m_Scoreboard;                                 // Reference to the scoreboard class. The scoreboard script will show a scoreboard with the current game state on screen.
+    public GameObject m_TankPrefab;                                 // Reference to the Tank Prefab. Will be used as the blueprint with which instantiate all the tanks in the game.
+    public TankManager[] m_Tanks;                                   // Array of Tank Managers. Each element inside it holds the configuration information for a specific tank instance.
 
 
-    private int m_RoundNumber;
-    private WaitForSeconds m_StartWait;
-    private WaitForSeconds m_EndWait;
-    private TankManager m_RoundWinner;
-    private TankManager m_GameWinner;
+    private int m_RoundNumber;                                      // Will store the number of the round being currently played.
+    private WaitForSeconds m_StartWait;                             // WaitForSeconds will stop a coroutine for the given amount of seconds using scaled time.
+    private WaitForSeconds m_EndWait;                               // In this case, two will be created. One will stop the coroutine at the start of the round and the other at the end.
+    private TankManager m_RoundWinner;                              // Reference to the Tank Manager of the tank instance that has won the round.
+    private TankManager m_GameWinner;                               // Reference to the Tank Manager of the tank instance that has won the game.
 
     private void Start()
     {
@@ -36,7 +36,7 @@ public class GameManager : MonoBehaviour
 
     private void SpawnAllTanks()
     {
-        if (m_Tanks.Length % 2 != 0)                            // In case the number of tanks is not even.
+        if (m_Tanks.Length % 2 != 0)                                // In case the number of tanks is not even.
         {
             // --------------------------------------------------------------------------
             // Spawn each tank individually.
@@ -47,6 +47,9 @@ public class GameManager : MonoBehaviour
             {
                 m_Tanks[i].m_Instance = Instantiate(m_TankPrefab, m_Tanks[i].m_SpawnPoint.position, m_Tanks[i].m_SpawnPoint.rotation) as GameObject;
                 m_Tanks[i].m_PlayerNumber = i + 1;
+
+                m_Tanks[i].m_AI_behaviour = i % 2 != 0 ? "Wander" : "Patroll";
+
                 m_Tanks[i].Setup();
             }
         }
@@ -67,6 +70,9 @@ public class GameManager : MonoBehaviour
 
                 m_Tanks[i].m_target             = m_Tanks[i + 1].m_Instance;                // Adding the target of each tank to be the next/previous in the m_Tanks list.
                 m_Tanks[i + 1].m_target         = m_Tanks[i].m_Instance;                    // Targets will be set in pairs: T0->T1 & T0->T1, T2->T3 & T3->T2...
+
+                m_Tanks[i].m_AI_behaviour       = "Wander";
+                m_Tanks[i + 1].m_AI_behaviour   = "Patroll";
 
                 m_Tanks[i].Setup();
                 m_Tanks[i + 1].Setup();

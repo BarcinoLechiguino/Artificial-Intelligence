@@ -4,20 +4,21 @@ using UnityEngine;
 [Serializable]
 public class TankManager
 {
-    public Color                            m_PlayerColor;            
-    public Transform                        m_SpawnPoint;         
-    [HideInInspector] public int            m_PlayerNumber;             
-    [HideInInspector] public string         m_ColoredPlayerText;
-    [HideInInspector] public GameObject     m_Instance;          
-    [HideInInspector] public int            m_Wins;
-    public int                              m_Loses;
+    public Color                            m_PlayerColor;                                  // RGB Colour with which the tank instance's mesh will be painted with.
+    public Transform                        m_SpawnPoint;                                   // Transform that will be used as the position where the tank instance will spawn.
+    [HideInInspector] public int            m_PlayerNumber;                                 // Number id attached to the tank instance. Will be used to manage user inputs.
+    [HideInInspector] public string         m_ColoredPlayerText;                            // String that will appear on screen displaying the player num in its player color.
+    [HideInInspector] public GameObject     m_Instance;                                     // GameObject that represents the instanced tank.
+    [HideInInspector] public int            m_Wins;                                         // Will keep track of the amount of rounds won by the tank instance.
 
-    private TankMovement                    m_Movement;       
-    private TankShooting                    m_Shooting;
-    private GameObject                      m_CanvasGameObject;
+    public string                           m_AI_behaviour;                                 // Will def. the AI behaviour of the tank instance. Could be "Wander" or "Patroll".
 
-    [HideInInspector] public GameObject     m_target;
-    [HideInInspector] public bool           m_managed_by_AI;
+    private TankMovement                    m_Movement;                                     // Reference to the TankMovement component of the tank instance. See TankMovement.cs.
+    private TankShooting                    m_Shooting;                                     // Reference to the TankShooting component of the tank instance. See TankShooting.cs.
+    private GameObject                      m_CanvasGameObject;                             // GameObject related to the UI elements attached to the tank instance.
+
+    [HideInInspector] public GameObject     m_target;                                       // Reference to the tank instance that will be set to be the target of this one.
+    [HideInInspector] public bool           m_managed_by_AI;                                // Will keep track of whether or not the tank instance is being controlled by the AI.
 
     public void Setup()
     {   

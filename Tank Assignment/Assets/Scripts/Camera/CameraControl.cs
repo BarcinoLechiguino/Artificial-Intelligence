@@ -2,16 +2,16 @@
 
 public class CameraControl : MonoBehaviour
 {
-    public float m_DampTime = 0.2f;                 
-    public float m_ScreenEdgeBuffer = 4f;           
-    public float m_MinSize = 6.5f;                  
-    [HideInInspector] public Transform[] m_Targets; 
+    public float                            m_DampTime = 0.2f;                 
+    public float                            m_ScreenEdgeBuffer = 4f;           
+    public float                            m_MinSize = 6.5f;                  
+    [HideInInspector] public Transform[]    m_Targets; 
 
 
-    private Camera m_Camera;                        
-    private float m_ZoomSpeed;                      
-    private Vector3 m_MoveVelocity;                 
-    private Vector3 m_DesiredPosition;              
+    private Camera                          m_Camera;                        
+    private float                           m_ZoomSpeed;                      
+    private Vector3                         m_MoveVelocity;                 
+    private Vector3                         m_DesiredPosition;              
 
 
     private void Awake()
@@ -37,8 +37,8 @@ public class CameraControl : MonoBehaviour
 
     private void FindAveragePosition()
     {
-        Vector3 averagePos = new Vector3();
-        int numTargets = 0;
+        Vector3 average_pos = new Vector3();
+        int num_targets = 0;
 
         for (int i = 0; i < m_Targets.Length; i++)
         {
@@ -47,18 +47,18 @@ public class CameraControl : MonoBehaviour
                 continue;
             }
 
-            averagePos += m_Targets[i].position;
-            numTargets++;
+            average_pos += m_Targets[i].position;
+            num_targets++;
         }
 
-        if (numTargets > 0)
+        if (num_targets > 0)
         {
-            averagePos /= numTargets;
+            average_pos /= num_targets;
         }
 
-        averagePos.y = transform.position.y;
+        average_pos.y = transform.position.y;
 
-        m_DesiredPosition = averagePos;
+        m_DesiredPosition = average_pos;
     }
 
 
