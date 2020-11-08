@@ -20,7 +20,7 @@ public class TankManager
     [HideInInspector] public bool           m_managed_by_AI;
 
     public void Setup()
-    {
+    {   
         m_Movement                          = m_Instance.GetComponent<TankMovement>();
         m_Shooting                          = m_Instance.GetComponent<TankShooting>();
         m_CanvasGameObject                  = m_Instance.GetComponentInChildren<Canvas>().gameObject;

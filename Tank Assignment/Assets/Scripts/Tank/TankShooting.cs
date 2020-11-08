@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class TankShooting : MonoBehaviour
 {
-    public int          m_PlayerNumber;       
+    public int          m_PlayerNumber              = 1;       
 
     public Rigidbody    m_Shell;            
     public Transform    m_FireTransform;    
@@ -12,18 +12,20 @@ public class TankShooting : MonoBehaviour
     public AudioClip    m_FireClip;
 
     public Transform    m_target_transform;
-    public float        m_launch_force              = 25.0f;
-    public float        m_min_pitch_angle;
-    public float        m_max_pitch_angle;
-    public float        m_shot_cooldown;
+    public float        m_launch_speed              = 15.0f;
+    public float        m_min_pitch_angle           = 0.0f;
+    public float        m_max_pitch_angle           = 45.0f;
+    public float        m_min_shot_cooldown         = 2.0f;
+    public float        m_cooldown_offset           = 1.0f;
     
     private string      m_fire_button;
     private bool        m_fired;
     private float       m_current_cooldown          = 0.0f;
     private bool        m_managed_by_AI             = true;
-    private bool        m_suitable_angle            = false;
+    private bool        m_found_suitable_angle      = false;
     private float       m_shot_angle                = 45.0f;
     private float       m_max_shot_reach            = 0.0f;
+    private float       m_shot_cooldown             = 0.0f;
     
     [HideInInspector] public MeshRenderer m_turret_renderer;
     private void OnEnable()
@@ -45,9 +47,7 @@ public class TankShooting : MonoBehaviour
 
     private void Update()
     {
-        LookAtEnemyTank();                                                                                                                  // Must be first to update the shot transform corr.
-
-        FindSuitableAngle();
+        LookAtTargetTank();                                                                                                             // Must be first to update the shot transform corr.
 
         if (m_fired)
         {
@@ -64,9 +64,14 @@ public class TankShooting : MonoBehaviour
 
         if (m_managed_by_AI)
         {
-            if (m_suitable_angle && !m_fired)                                                                                           // Condition: Find a suitable angle.
+            if (!m_fired)
             {
-                AI_Fire();
+                FindSuitableAngle();                                                                                                        // Only calculate the angle if tank can shoot.
+
+                if (m_found_suitable_angle)                                                                                                 // Condition: Find a suitable angle.
+                {
+                    AI_Fire();
+                }
             }
         }
         else
@@ -78,16 +83,43 @@ public class TankShooting : MonoBehaviour
         }
     }
 
+    private float GetMaxReach()
+    {
+        // As per R = v^2 * sin(2a) / g
+        float v = m_launch_speed;                                                                               // Projectile's speed.
+        float a = 45.0f;                                                                                        // Max reach in a parabolic shot happens at 45º.
+        float g = Physics.gravity.y;                                                                            // Gravity constant for the current environment.
+
+        float max_reach = ((v * v) * Mathf.Sin(2 * a)) / g;
+
+        max_reach = Mathf.Abs(max_reach);                                                                       // Gets the absolute value in case max_reach is negative.
+
+        Debug.Log(max_reach);
+
+        return max_reach;
+    }
+
+    private float GetNewCooldown()
+    {
+        float new_cooldown = m_min_shot_cooldown + UnityEngine.Random.Range(0.0f, m_cooldown_offset);           // It's randomized 
+
+        return new_cooldown;
+    }
+
+    private void LookAtTargetTank()
+    {
+        Vector3 new_forward = m_target_transform.position - transform.position;                                // Getting the vector that points from origin to target.
+
+        m_turret_renderer.transform.forward = new_forward;                                                      // Setting the the turret_transform with the new forward vector.
+        m_FireTransform.forward = m_turret_renderer.transform.forward;                                          // Also applying the new forward vector to the fire_transform.
+    }
+
     private void Fire()                                                                                                                     // Instantiate and launch the shell.
     {
         m_fired                     = true;
-        
-        //m_FireTransform.rotation    = Quaternion.Euler(0.0f, m_min_pitch_angle, 0.0f);
 
         Rigidbody shellInstance     = Instantiate(m_Shell, m_FireTransform.position, m_FireTransform.rotation) as Rigidbody;
-        shellInstance.velocity      = m_launch_force * m_FireTransform.forward;
-
-        //shellInstance.transform.forward = shellInstance.velocity;
+        shellInstance.velocity      = m_launch_speed * m_FireTransform.forward;
 
         m_ShootingAudio.clip        = m_FireClip;
         m_ShootingAudio.Play();
@@ -95,67 +127,79 @@ public class TankShooting : MonoBehaviour
 
     private void AI_Fire()
     {
+        m_found_suitable_angle = false;
         m_fired = true;
 
-        //m_FireTransform.rotation    = Quaternion.Euler(0.0f, m_min_pitch_angle, 0.0f);
+        m_FireTransform.Rotate(-m_shot_angle, 0.0f, 0.0f);
 
         Rigidbody shellInstance = Instantiate(m_Shell, m_FireTransform.position, m_FireTransform.rotation) as Rigidbody;
-
-        Vector3 fire_transform = m_FireTransform.forward;
-
-        shellInstance.velocity = m_launch_force * m_FireTransform.forward;
-
-        //shellInstance.transform.forward = shellInstance.velocity;
+        shellInstance.velocity = m_launch_speed * m_FireTransform.forward;
 
         m_ShootingAudio.clip = m_FireClip;
         m_ShootingAudio.Play();
     }
 
-    private void LookAtEnemyTank()
-    {
-        Vector3 new_forward =  m_target_transform.position - transform.position;                                                // Getting the vector that points from origin to target.
-
-        m_turret_renderer.transform.forward = new_forward;                                                                      // Setting the the turret_transform with the new forward vector.
-        m_FireTransform.forward = m_turret_renderer.transform.forward;                                                          // Also applying the new forward vector to the fire_transform.
-        
-        //m_FireTransform.rotation = Quaternion.Euler(-135.0f, 0.0f, 0.0f);
-    }
-
     private void FindSuitableAngle()
     {
-        float distance = Vector3.Distance(transform.position, m_target_transform.position);
+        float distance_to_target = Vector3.Distance(m_FireTransform.position, m_target_transform.position);
 
-        if (distance < m_max_shot_reach)
+        if (distance_to_target < m_max_shot_reach)                                                              // Checks that the target is within reach.
         {
-            print(distance);
+            // tan(a) = (v^2 +- sqrt(v^4 - g(gx^2 + 2yv^2))) / gx;
+            float v = m_launch_speed;                                                                           // Projectile's Speed
+            float g = Physics.gravity.y;                                                                        // Gravity on the y axis.
+            float x = distance_to_target;                                                                       // Distance to the target from the fire transform.
+            float y = m_target_transform.position.y;                                                            // Target's position in the y axis.
 
-            //Fire();
+            if (y < 0.0f)                                                                                       // In case the target's y position is negative.
+            {
+                y = 0.0f;
+            }
 
-            m_suitable_angle = true;
+            float v2 = v * v;                                                                                   // Separating the operations for readability's sake.
+            float v4 = v * v * v * v;                                                                           //
+            float x2 = x * x;                                                                                   // -------------------------------------------------
+
+            float tan       = (v2 - Mathf.Sqrt(v4 - g * (g * x2 + 2 * y * v2))) / (g * x);                      // Gets the tangent for the "-" version of the equation.
+            float rad_angle = Mathf.Atan(tan);                                                                  // Angle in radiants.
+
+            m_shot_angle = GetValidShotAngle(rad_angle);                                                        // GetValidShotAngle returns the correct angle in degrees. Returns 0 on ERROR.
+
+            if (m_shot_angle > 0.0f)
+            {
+                m_found_suitable_angle = true;
+            }
+        }
+        else
+        {
+            Debug.Log(distance_to_target);
+            Debug.Log(m_max_shot_reach);
+
+            Debug.LogWarning("[WARNING] Unable to shoot: The target is too far!");
         }
     }
-
-    private float GetMaxReach()
+    
+    private float GetValidShotAngle(double angle)
     {
-        Vector3 velocity = m_launch_force * m_FireTransform.forward;
+        float ret = 0.0f;
 
-        // As per R = v^2 * sin2(angle) / g
-        float max_reach = ((m_launch_force * m_launch_force) * Mathf.Sin(2.0f * 45.0f)) / Physics.gravity.y;                        // Max reach in a parabolic shot happens at 45º.
+        float pitch = Math.Abs((float)angle * Mathf.Rad2Deg);
 
-        if (max_reach < 0)                                                                                                          // In case distance is negative.  
+        if (PitchAngleIsValid(pitch))
         {
-            max_reach = -max_reach;
+            ret = pitch;
+        }
+        else
+        {
+            Debug.LogError("[ERROR] Pitch angle was not valid: It was too big or too small!");
         }
 
-        print(max_reach);
-
-        return max_reach;
+        return ret;
     }
 
-    private float GetNewCooldown()
+    private bool PitchAngleIsValid(float angle)
     {
-        float new_cooldown = 2.0f + UnityEngine.Random.Range(0.0f, 0.5f);                                                           // It's randomized 
-
-        return new_cooldown;
+        return (angle > m_min_pitch_angle && angle < m_max_pitch_angle);                                        // The angle (pitch angle) will be valid if it's within the specified bounds.
+        //return (angle > 0.0f && angle < 45.0f);                                                               // Reach only increases/decreases in the range from 0º to 45º and viceversa.
     }
 }
