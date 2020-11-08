@@ -114,31 +114,6 @@ public class TankShooting : MonoBehaviour
         m_FireTransform.forward = m_turret_renderer.transform.forward;                                          // Also applying the new forward vector to the fire_transform.
     }
 
-    private void Fire()                                                                                                                     // Instantiate and launch the shell.
-    {
-        m_fired                     = true;
-
-        Rigidbody shellInstance     = Instantiate(m_Shell, m_FireTransform.position, m_FireTransform.rotation) as Rigidbody;
-        shellInstance.velocity      = m_launch_speed * m_FireTransform.forward;
-
-        m_ShootingAudio.clip        = m_FireClip;
-        m_ShootingAudio.Play();
-    }
-
-    private void AI_Fire()
-    {
-        m_found_suitable_angle = false;
-        m_fired = true;
-
-        m_FireTransform.Rotate(-m_shot_angle, 0.0f, 0.0f);
-
-        Rigidbody shellInstance = Instantiate(m_Shell, m_FireTransform.position, m_FireTransform.rotation) as Rigidbody;
-        shellInstance.velocity = m_launch_speed * m_FireTransform.forward;
-
-        m_ShootingAudio.clip = m_FireClip;
-        m_ShootingAudio.Play();
-    }
-
     private void FindSuitableAngle()
     {
         float distance_to_target = Vector3.Distance(m_FireTransform.position, m_target_transform.position);
@@ -160,7 +135,7 @@ public class TankShooting : MonoBehaviour
             float v4 = v * v * v * v;                                                                           //
             float x2 = x * x;                                                                                   // -------------------------------------------------
 
-            float tan       = (v2 - Mathf.Sqrt(v4 - g * (g * x2 + 2 * y * v2))) / (g * x);                      // Gets the tangent for the "-" version of the equation.
+            float tan = (v2 - Mathf.Sqrt(v4 - g * (g * x2 + 2 * y * v2))) / (g * x);                      // Gets the tangent for the "-" version of the equation.
             float rad_angle = Mathf.Atan(tan);                                                                  // Angle in radiants.
 
             m_shot_angle = GetValidShotAngle(rad_angle);                                                        // GetValidShotAngle returns the correct angle in degrees. Returns 0 on ERROR.
@@ -178,7 +153,7 @@ public class TankShooting : MonoBehaviour
             Debug.LogWarning("[WARNING] Unable to shoot: The target is too far!");
         }
     }
-    
+
     private float GetValidShotAngle(double angle)
     {
         float ret = 0.0f;
@@ -201,5 +176,30 @@ public class TankShooting : MonoBehaviour
     {
         return (angle > m_min_pitch_angle && angle < m_max_pitch_angle);                                        // The angle (pitch angle) will be valid if it's within the specified bounds.
         //return (angle > 0.0f && angle < 45.0f);                                                               // Reach only increases/decreases in the range from 0º to 45º and viceversa.
+    }
+
+    private void AI_Fire()
+    {
+        m_found_suitable_angle = false;
+        m_fired = true;
+
+        m_FireTransform.Rotate(-m_shot_angle, 0.0f, 0.0f);
+
+        Rigidbody shellInstance = Instantiate(m_Shell, m_FireTransform.position, m_FireTransform.rotation) as Rigidbody;
+        shellInstance.velocity = m_launch_speed * m_FireTransform.forward;
+
+        m_ShootingAudio.clip = m_FireClip;
+        m_ShootingAudio.Play();
+    }
+
+    private void Fire()                                                                                                                     // Instantiate and launch the shell.
+    {
+        m_fired                     = true;
+
+        Rigidbody shellInstance     = Instantiate(m_Shell, m_FireTransform.position, m_FireTransform.rotation) as Rigidbody;
+        shellInstance.velocity      = m_launch_speed * m_FireTransform.forward;
+
+        m_ShootingAudio.clip        = m_FireClip;
+        m_ShootingAudio.Play();
     }
 }
