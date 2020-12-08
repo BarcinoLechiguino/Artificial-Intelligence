@@ -55,12 +55,13 @@ public class GameManager : MonoBehaviour
 
                 if (i % 2 != 0)
                 {
-                    m_Tanks[i].m_AI_behaviour = "Wander";
+                    m_Tanks[i].m_AI_behaviour = "Wanderer";
                 }
                 else
                 {
-                    m_Tanks[i].m_AI_behaviour = "Patrol";
-                    m_Tanks[i].m_patrol_waypoints = patrol_waypoints;
+                    m_Tanks[i].m_AI_behaviour       = "Patroller";
+                    m_Tanks[i].m_root_waypoint      = m_patrol_root_waypoint;
+                    m_Tanks[i].m_patrol_waypoints   = patrol_waypoints;
                 }
 
                 m_Tanks[i].Setup();
@@ -84,8 +85,9 @@ public class GameManager : MonoBehaviour
                 m_Tanks[i].m_target                 = m_Tanks[i + 1].m_Instance;                // Adding the target of each tank to be the next/previous in the m_Tanks list.
                 m_Tanks[i + 1].m_target             = m_Tanks[i].m_Instance;                    // Targets will be set in pairs: T0->T1 & T0->T1, T2->T3 & T3->T2...
 
-                m_Tanks[i].m_AI_behaviour           = "Wander";
-                m_Tanks[i + 1].m_AI_behaviour       = "Patrol";
+                m_Tanks[i].m_AI_behaviour           = "Wanderer";
+                m_Tanks[i + 1].m_AI_behaviour       = "Patroller";
+                m_Tanks[i + 1].m_root_waypoint      = m_patrol_root_waypoint;
                 m_Tanks[i + 1].m_patrol_waypoints   = patrol_waypoints; 
 
                 m_Tanks[i].Setup();
@@ -278,7 +280,7 @@ public class GameManager : MonoBehaviour
     }
 
     private Transform[] GetPatrolWaypoints()                                                                                            // Maybe put elsewhere? TankManager?
-    {
+    {   
         int num_waypoints = m_patrol_root_waypoint.childCount;                                                                          // Getting the total amount of childs in the root.
 
         Transform[] waypoints = new Transform[num_waypoints];                                                                           // Allocating the required memory.

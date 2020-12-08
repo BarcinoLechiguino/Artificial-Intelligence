@@ -63,11 +63,11 @@ public class TankMovement : MonoBehaviour
 
     private void Start()
     {
-        if (m_AI_behaviour == "Wander")
+        if (m_AI_behaviour == "Wanderer")
         {
             WanderSetUp();
         }
-        else if (m_AI_behaviour == "Patrol")
+        else if (m_AI_behaviour == "Patroller")
         {
             PatrolSetUp();
         }
@@ -241,7 +241,7 @@ public class TankMovement : MonoBehaviour
             return;
         }
 
-        m_agent.destination = waypoints[m_destination].position;                                              // Will set the destination to the waypoint with the "destination" index.
+        m_agent.destination = waypoints[m_destination].position;                                                // Will set the destination to the waypoint with the "destination" index.
 
         m_destination = (m_destination + 1) % waypoints.Length;                                                 // Sets destination with the index of the next waypoint. Cycles back to origin.
     }

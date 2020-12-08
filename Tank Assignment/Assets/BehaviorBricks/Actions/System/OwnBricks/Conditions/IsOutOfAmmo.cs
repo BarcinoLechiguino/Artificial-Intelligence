@@ -4,20 +4,16 @@ using UnityEngine;
 namespace BBUnity.Conditions
 {
     [Condition("OwnBricks/Conditions/IsOutOfAmmo")]
-    [Help("Checks whether a target is close depending on a given distance")]
+    [Help("Checks whether the tank has any ammo left")]
     public class IsOutOfAmmo : GOCondition
     {
-        [InParam("target")]
-        [Help("Target to check the distance")]
-        public GameObject target;
-
-        [InParam("closeDistance")]
-        [Help("The maximun distance to consider that the target is close")]
-        public float closeDistance;
+        [InParam("ammo")]
+        [Help("Current amount of ammo")]
+        public int ammo;
 
         public override bool Check()
         {
-            return (gameObject.transform.position - target.transform.position).sqrMagnitude < closeDistance * closeDistance;
+            return (ammo == 0);
         }
     }
 }

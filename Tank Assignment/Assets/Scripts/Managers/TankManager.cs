@@ -12,6 +12,7 @@ public class TankManager
     [HideInInspector] public int            m_Wins;                                         // Will keep track of the amount of rounds won by the tank instance.
 
     public string                           m_AI_behaviour;                                 // Will def. the AI behaviour of the tank instance. Could be "Wander" or "Patrol".
+    [HideInInspector] public Transform      m_root_waypoint;
     [HideInInspector] public Transform[]    m_patrol_waypoints;                             // Array that will store the waypoints that will be used by a patrolling tank.
 
     private TankMovement                    m_Movement;                                     // Reference to the TankMovement component of the tank instance. See TankMovement.cs.
@@ -21,16 +22,24 @@ public class TankManager
     [HideInInspector] public GameObject     m_target;                                       // Reference to the tank instance that will be set to be the target of this one.
     [HideInInspector] public bool           m_managed_by_AI;                                // Will keep track of whether or not the tank instance is being controlled by the AI.
 
+    private BehaviorExecutor                m_behaviour_executor;
+
     public void Setup()
-    {   
+    {
+        m_Instance.name = m_AI_behaviour;
+        
         m_Movement                          = m_Instance.GetComponent<TankMovement>();
         m_Shooting                          = m_Instance.GetComponent<TankShooting>();
         m_CanvasGameObject                  = m_Instance.GetComponentInChildren<Canvas>().gameObject;
 
+        m_behaviour_executor                = m_Instance.GetComponent<BehaviorExecutor>();
+
         m_ColoredPlayerText                 = "<color=#" + ColorUtility.ToHtmlStringRGB(m_PlayerColor) + ">PLAYER " + m_PlayerNumber + "</color>";
         MeshRenderer[] renderers            = m_Instance.GetComponentsInChildren<MeshRenderer>();
+        Transform[] transforms              = m_Instance.GetComponentsInChildren<Transform>();
+        Rigidbody[] rigid_bodies            = m_Instance.GetComponentsInChildren<Rigidbody>();
 
-        for (int i = 0; i < renderers.Length; i++)
+        for (int i = 0; i < renderers.Length; ++i)
         {
             renderers[i].material.color = m_PlayerColor;
         }
@@ -43,6 +52,16 @@ public class TankManager
         m_Shooting.m_PlayerNumber           = m_PlayerNumber;
         m_Shooting.m_target_transform       = m_target.transform;
         m_Shooting.m_turret_renderer        = renderers[3];
+
+        m_behaviour_executor.SetBehaviorParam("target", m_target);
+        m_behaviour_executor.SetBehaviorParam("ammo", 3);
+        m_behaviour_executor.SetBehaviorParam("fire_transform", transforms[16]);
+        m_behaviour_executor.SetBehaviorParam("turret", renderers[3]);
+        m_behaviour_executor.SetBehaviorParam("ai_behaviour", m_AI_behaviour);
+        m_behaviour_executor.SetBehaviorParam("root_waypoint", m_root_waypoint);
+        m_behaviour_executor.SetBehaviorParam("waypoints", m_patrol_waypoints);
+        m_behaviour_executor.SetBehaviorParam("cooldown", 0.0f);
+        m_behaviour_executor.SetBehaviorParam("max_cooldown", 3.0f);
     }
 
     public void DisableControl()
