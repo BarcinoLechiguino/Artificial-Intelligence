@@ -12,7 +12,12 @@ namespace BBUnity.Conditions
         public int ammo;
 
         public override bool Check()
-        {
+        {   
+            if (ammo == 0)
+            {
+                Debug.Log(gameObject.name + " is out of ammo!");
+            }
+
             return (ammo == 0);
         }
     }

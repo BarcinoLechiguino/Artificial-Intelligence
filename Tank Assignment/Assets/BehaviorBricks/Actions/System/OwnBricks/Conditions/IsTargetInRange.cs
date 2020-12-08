@@ -11,30 +11,25 @@ namespace BBUnity.Conditions
         [Help("Target to check the distance to.")]
         public GameObject target;
 
-        [InParam("fired")]
-        public bool fired;
-
-        [OutParam("max_reach_out")]
-        [Help("Maximum distance at which the tank can shoot at.")]
-        public float max_reach_out;
+        private float max_reach = 0.0f;
 
         public override bool Check()
-        {
-            if (fired)
-            {
-                return false;
-            }
-            
-            max_reach_out               = GetMaxReach();
+        {   
+            max_reach                   = GetMaxReach();
             float distance_to_target    = Vector3.Distance(gameObject.transform.position, target.transform.position);
 
-            return (distance_to_target < max_reach_out);
+            if (distance_to_target < max_reach)
+            {
+                Debug.Log("TARGET IS WITHIN REACH");
+            }
+
+            return (distance_to_target < max_reach);
         }
 
         public float GetMaxReach()
         {
             // As per R = v^2 * sin(2a) / g
-            float v = 15.0f;                                                                                        // Projectile's speed.
+            float v = 17.5f;                                                                                        // Projectile's speed.
             float a = 45.0f;                                                                                        // Max reach in a parabolic shot happens at 45º.
             float g = Physics.gravity.y;                                                                            // Gravity constant for the current environment.
 

@@ -10,21 +10,22 @@ namespace BBUnity.Actions
     {
         ///<value>Input target position where the game object will be moved Parameter.</value>
         [InParam("target")]
-        [Help("Target Tank at which shot")]
         public GameObject target;
-
+        
         [InParam("ai_behaviour")]
         public string ai_behaviour;
-
-        [InParam("waypoints")]
-        public Transform[] waypoints;
 
         [InParam("root_waypoint")]
         public Transform root_waypoint;
 
+        [InParam("destination")]
+        public int destination;
+
+        [OutParam("destination_out")]
+        public int destination_out;
+
         private UnityEngine.AI.NavMeshAgent agent;
-        private bool can_patrol = true;
-        private int destination = 0;
+        private Transform[] waypoints;
 
         public override void OnStart()
         {
@@ -33,55 +34,59 @@ namespace BBUnity.Actions
                 return;
             }
 
+            destination_out = destination;
+
             agent = gameObject.GetComponent<UnityEngine.AI.NavMeshAgent>();
 
             GetWaypoints();
 
-            if (can_patrol)
+            if (!agent.pathPending && agent.remainingDistance < 0.5f)
             {
-                if (!agent.pathPending && agent.remainingDistance < 0.5f)
-                {
-                    SetNextWaypoint();
+                SetNextWaypoint();
 
-                    string log = "Waypoint " + (destination - 1) + " reached! Next waypoint: " + destination;
-                    Debug.Log(log);
-                }
+                string log = "Waypoint " + (destination_out - 1) + " reached! Next waypoint: " + destination_out;
+                Debug.Log(log);
             }
         }
 
         public override TaskStatus OnUpdate()
         {
-            return TaskStatus.COMPLETED;
+            if (ai_behaviour == "Wanderer")
+            {
+                return TaskStatus.FAILED;
+            }
+            else
+            {
+                return TaskStatus.COMPLETED;
+            }
         }
+
         public void SetNextWaypoint()
         {
             if (waypoints.Length == 0)
             {
-                can_patrol = false;
-
                 string log = "Patroller Tank cannot patrol: No patrol waypoints were found!";
                 Debug.LogWarning(log);
 
                 return;
             }
 
-            agent.destination = waypoints[destination].position;                                                // Will set the destination to the waypoint with the "destination" index.
+            agent.destination = waypoints[destination_out].position;                                                // Will set the destination to the waypoint with the "destination" index.
 
-            destination = (destination + 1) % waypoints.Length;                                                 // Sets destination with the index of the next waypoint. Cycles back to origin.
+            destination_out = (destination_out + 1) % root_waypoint.childCount;                                         // Sets destination with the index of the next waypoint. Cycles back to origin.
+
+            //Debug.Log("Destionation " + destination_out);
         }
 
         public void GetWaypoints()
         {
             int num_waypoints = root_waypoint.childCount;                                                                                   // Getting the total amount of childs in the root.
 
-            if (waypoints.Length != num_waypoints)
-            {
-                waypoints = new Transform[num_waypoints];                                                                                       // Allocating the required memory.
+            waypoints = new Transform[num_waypoints];                                                                                       // Allocating the required memory.
 
-                for (int i = 0; i < num_waypoints; ++i)
-                {
-                    waypoints[i] = root_waypoint.GetChild(i);                                                                                   // Getting the child i inside the root transform.
-                }
+            for (int i = 0; i < num_waypoints; ++i)
+            {
+                waypoints[i] = root_waypoint.GetChild(i);                                                                                   // Getting the child i inside the root transform.
             }
         }
     }

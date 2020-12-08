@@ -29,12 +29,14 @@ namespace BBUnity.Actions
             }
 
             agent = gameObject.GetComponent<UnityEngine.AI.NavMeshAgent>();
+            agent.autoBraking = false;
 
-            //Vector3 forward_to_target   = m_target_transform.position - transform.position;
+            Vector3 forward_to_target = target.transform.position - gameObject.transform.position;
             float distance_to_target = Vector3.Distance(gameObject.transform.position, target.transform.position);
 
             if (!agent.pathPending && agent.remainingDistance < 0.5f)
             {
+
                 Vector3 local_target = new Vector3(UnityEngine.Random.Range(-1.0f, 1.0f), 0, UnityEngine.Random.Range(-1.0f, 1.0f));
 
                 local_target.Normalize();
@@ -58,7 +60,14 @@ namespace BBUnity.Actions
 
         public override TaskStatus OnUpdate()
         {
-            return TaskStatus.COMPLETED;
+            if (ai_behaviour == "Wanderer")
+            {
+                return TaskStatus.COMPLETED;
+            }
+            else 
+            {
+                return TaskStatus.FAILED;
+            }
         }
     }
 }

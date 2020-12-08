@@ -28,46 +28,51 @@ public class TankManager
     {
         m_Instance.name = m_AI_behaviour;
         
-        m_Movement                          = m_Instance.GetComponent<TankMovement>();
-        m_Shooting                          = m_Instance.GetComponent<TankShooting>();
+        //m_Movement                          = m_Instance.GetComponent<TankMovement>();
+        //m_Shooting                          = m_Instance.GetComponent<TankShooting>();
         m_CanvasGameObject                  = m_Instance.GetComponentInChildren<Canvas>().gameObject;
-
-        m_behaviour_executor                = m_Instance.GetComponent<BehaviorExecutor>();
 
         m_ColoredPlayerText                 = "<color=#" + ColorUtility.ToHtmlStringRGB(m_PlayerColor) + ">PLAYER " + m_PlayerNumber + "</color>";
         MeshRenderer[] renderers            = m_Instance.GetComponentsInChildren<MeshRenderer>();
         Transform[] transforms              = m_Instance.GetComponentsInChildren<Transform>();
-        Rigidbody[] rigid_bodies            = m_Instance.GetComponentsInChildren<Rigidbody>();
 
         for (int i = 0; i < renderers.Length; ++i)
         {
             renderers[i].material.color = m_PlayerColor;
         }
 
-        m_Movement.m_PlayerNumber           = m_PlayerNumber;
-        m_Movement.m_target_transform       = m_target.transform;
-        m_Movement.m_AI_behaviour           = m_AI_behaviour;
-        m_Movement.waypoints                = m_patrol_waypoints;
+        //m_Movement.m_PlayerNumber           = m_PlayerNumber;
+        //m_Movement.m_target_transform       = m_target.transform;
+        //m_Movement.m_AI_behaviour           = m_AI_behaviour;
+        //m_Movement.waypoints                = m_patrol_waypoints;
 
-        m_Shooting.m_PlayerNumber           = m_PlayerNumber;
-        m_Shooting.m_target_transform       = m_target.transform;
-        m_Shooting.m_turret_renderer        = renderers[3];
+        //m_Shooting.m_PlayerNumber           = m_PlayerNumber;
+        //m_Shooting.m_target_transform       = m_target.transform;
+        //m_Shooting.m_turret_renderer        = renderers[3];
 
-        m_behaviour_executor.SetBehaviorParam("target", m_target);
-        m_behaviour_executor.SetBehaviorParam("ammo", 3);
-        m_behaviour_executor.SetBehaviorParam("fire_transform", transforms[16]);
-        m_behaviour_executor.SetBehaviorParam("turret", renderers[3]);
-        m_behaviour_executor.SetBehaviorParam("ai_behaviour", m_AI_behaviour);
-        m_behaviour_executor.SetBehaviorParam("root_waypoint", m_root_waypoint);
-        m_behaviour_executor.SetBehaviorParam("waypoints", m_patrol_waypoints);
-        m_behaviour_executor.SetBehaviorParam("cooldown", 0.0f);
-        m_behaviour_executor.SetBehaviorParam("max_cooldown", 3.0f);
+
+        m_behaviour_executor = m_Instance.GetComponent<BehaviorExecutor>();
+
+        Debug.Log(m_behaviour_executor.name);
+
+        m_behaviour_executor.blackboard.SetBehaviorParam("target", m_target);
+        m_behaviour_executor.blackboard.SetBehaviorParam("ai_behaviour", m_AI_behaviour);
+        m_behaviour_executor.blackboard.SetBehaviorParam("root_waypoint", m_root_waypoint);
+        m_behaviour_executor.blackboard.SetBehaviorParam("fire_transform", transforms[16]);
+        m_behaviour_executor.blackboard.SetBehaviorParam("turret", renderers[3]);
+        m_behaviour_executor.blackboard.SetBehaviorParam("cooldown", 0.0f);
+        m_behaviour_executor.blackboard.SetBehaviorParam("max_cooldown", 3.0f);
+        m_behaviour_executor.blackboard.SetBehaviorParam("fired", true);
+        m_behaviour_executor.blackboard.SetBehaviorParam("ammo", 3);
+        m_behaviour_executor.blackboard.SetBehaviorParam("base_waypoint", m_SpawnPoint);
     }
 
     public void DisableControl()
     {
-        m_Movement.enabled = false;
-        m_Shooting.enabled = false;
+        //m_Movement.enabled = false;
+        //m_Shooting.enabled = false;
+
+        m_behaviour_executor.enabled = false;
 
         m_CanvasGameObject.SetActive(false);
     }
@@ -75,8 +80,10 @@ public class TankManager
 
     public void EnableControl()
     {
-        m_Movement.enabled = true;
-        m_Shooting.enabled = true;
+        //m_Movement.enabled = true;
+        //m_Shooting.enabled = true;
+
+        m_behaviour_executor.enabled = true;
 
         m_CanvasGameObject.SetActive(true);
     }

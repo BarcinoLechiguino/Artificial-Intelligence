@@ -88,7 +88,7 @@ public class GameManager : MonoBehaviour
                 m_Tanks[i].m_AI_behaviour           = "Wanderer";
                 m_Tanks[i + 1].m_AI_behaviour       = "Patroller";
                 m_Tanks[i + 1].m_root_waypoint      = m_patrol_root_waypoint;
-                m_Tanks[i + 1].m_patrol_waypoints   = patrol_waypoints; 
+                m_Tanks[i + 1].m_patrol_waypoints   = patrol_waypoints;
 
                 m_Tanks[i].Setup();
                 m_Tanks[i + 1].Setup();

@@ -20,15 +20,14 @@ namespace BBUnity.Actions
 
         public override void OnStart()
         {
-            //Vector3 new_forward = target.transform.position - gameObject.transform.position;          // Getting the vector that points from origin to target.
-            Vector3 new_forward = target.transform.position - fire_transform.position;                  // Getting the vector that points from origin to target.
-
-            turret.transform.forward = new_forward;                                                     // Setting the the turret_transform with the new forward vector.
+            turret.transform.LookAt(target.transform);
             fire_transform.forward = turret.transform.forward;                                          // Also applying the new forward vector to the fire_transform.
         }
 
         public override TaskStatus OnUpdate()
         {
+
+
             return TaskStatus.COMPLETED;
         }
     }
